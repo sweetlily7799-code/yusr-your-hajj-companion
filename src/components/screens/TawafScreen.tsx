@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
-import { ChevronLeft, RotateCcw, Plus } from 'lucide-react';
+import { ChevronLeft, RotateCcw, Play, Square, Locate } from 'lucide-react';
 
 export function TawafScreen() {
-  const { t, tawafCount, incrementTawaf, resetTawaf, setCurrentScreen } = useApp();
+  const { t, tawafCount, tawafActive, incrementTawaf, resetTawaf, toggleTawafActive, setCurrentScreen, language } = useApp();
+  const isArabic = language === 'ar';
   
   const circumference = 2 * Math.PI * 45;
   const progress = (tawafCount / 7) * circumference;
   const isComplete = tawafCount === 7;
+
+  // Auto-increment simulation when active (every 8 seconds for demo)
+  useEffect(() => {
+    if (tawafActive && !isComplete) {
+      const timer = setInterval(() => {
+        incrementTawaf();
+      }, 8000);
+      return () => clearInterval(timer);
+    }
+  }, [tawafActive, isComplete, incrementTawaf]);
 
   return (
     <div className="h-full flex flex-col p-4">
@@ -29,6 +40,25 @@ export function TawafScreen() {
         </h2>
       </motion.div>
 
+      {/* Auto Tracking Status */}
+      {tawafActive && (
+        <motion.div
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-center gap-2 mb-2"
+        >
+          <motion.div
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="w-2 h-2 rounded-full bg-success"
+          />
+          <span className="text-xs text-success font-medium">
+            {t('autoTracking')}
+          </span>
+          <Locate className="w-3 h-3 text-success" />
+        </motion.div>
+      )}
+
       {/* Counter Ring */}
       <div className="flex-1 flex flex-col items-center justify-center">
         <motion.div
@@ -37,8 +67,9 @@ export function TawafScreen() {
           transition={{ type: "spring", stiffness: 200 }}
           className="relative"
         >
-          {/* Background Ring */}
+          {/* Kaaba Icon in Center */}
           <svg width="180" height="180" className="transform -rotate-90">
+            {/* Background Ring */}
             <circle
               cx="90"
               cy="90"
@@ -47,6 +78,7 @@ export function TawafScreen() {
               stroke="hsl(var(--muted))"
               strokeWidth="10"
             />
+            {/* Progress Ring */}
             <motion.circle
               cx="90"
               cy="90"
@@ -60,6 +92,24 @@ export function TawafScreen() {
               animate={{ strokeDashoffset: circumference - progress }}
               transition={{ duration: 0.5, ease: "easeOut" }}
             />
+            {/* Moving Dot when active */}
+            {tawafActive && !isComplete && (
+              <motion.circle
+                cx="90"
+                cy="45"
+                r="6"
+                fill="hsl(var(--primary))"
+                animate={{ 
+                  rotate: [0, 360],
+                }}
+                transition={{ 
+                  duration: 8, 
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+                style={{ transformOrigin: '90px 90px' }}
+              />
+            )}
           </svg>
 
           {/* Center Content */}
@@ -110,20 +160,33 @@ export function TawafScreen() {
           <RotateCcw className="w-5 h-5 text-muted-foreground" />
         </button>
 
-        {/* Increment Button */}
+        {/* Start/Stop Button */}
         <motion.button
           whileTap={{ scale: 0.95 }}
-          onClick={incrementTawaf}
+          onClick={toggleTawafActive}
           disabled={isComplete}
-          className="w-20 h-20 rounded-full bg-primary flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed touch-target"
+          className={`w-20 h-20 rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed touch-target ${
+            tawafActive ? 'bg-destructive' : 'bg-primary'
+          }`}
           style={{ boxShadow: 'var(--shadow-button)' }}
         >
-          <Plus className="w-8 h-8 text-primary-foreground" />
+          {tawafActive ? (
+            <Square className="w-8 h-8 text-destructive-foreground" />
+          ) : (
+            <Play className="w-8 h-8 text-primary-foreground ms-1" />
+          )}
         </motion.button>
 
         {/* Spacer for symmetry */}
         <div className="w-14 h-14" />
       </motion.div>
+
+      {/* Instructions */}
+      <p className="text-xs text-center text-muted-foreground pb-2">
+        {isArabic 
+          ? 'اضغط للبدء - العداد يتتبع موقعك تلقائياً'
+          : 'Tap to start - Counter auto-tracks your location'}
+      </p>
     </div>
   );
 }

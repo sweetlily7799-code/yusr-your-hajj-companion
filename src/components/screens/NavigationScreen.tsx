@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
-import { ChevronLeft, Navigation as NavIcon, MapPin, ArrowUp, Clock } from 'lucide-react';
+import { ChevronLeft, MapPin, ArrowUp, Clock, Navigation as NavIcon } from 'lucide-react';
+import mapKaaba from '@/assets/map-kaaba.jpg';
 
 const destinations = [
   { id: 'kaaba', nameAr: 'الكعبة المشرفة', nameEn: 'Holy Kaaba', distance: '1.2 km', time: '15 min' },
@@ -13,8 +14,18 @@ const destinations = [
 ];
 
 export function NavigationScreen() {
-  const { t, setCurrentScreen, language } = useApp();
+  const { t, setCurrentScreen, language, setSelectedDestination } = useApp();
   const isArabic = language === 'ar';
+
+  const handleNavigate = (dest: typeof destinations[0]) => {
+    setSelectedDestination({
+      nameAr: dest.nameAr,
+      nameEn: dest.nameEn,
+      distance: dest.distance,
+      time: dest.time
+    });
+    setCurrentScreen('route');
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -35,20 +46,25 @@ export function NavigationScreen() {
         </h2>
       </motion.div>
 
-      {/* Current Location */}
+      {/* Map Preview */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="mx-4 mb-3 p-3 rounded-2xl bg-primary/10"
+        className="mx-4 mb-3 rounded-2xl overflow-hidden h-28 relative"
       >
-        <div className="flex items-center gap-2 mb-1">
+        <img 
+          src={mapKaaba} 
+          alt="Map" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+        <div className="absolute bottom-2 left-3 flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-          <span className="text-xs text-muted-foreground">Current Location</span>
+          <span className="text-xs text-foreground font-medium">
+            {isArabic ? 'موقعك الحالي' : 'Your Location'}
+          </span>
         </div>
-        <p className="font-medium text-foreground">
-          {isArabic ? 'الحرم المكي - باب عبدالعزيز' : 'Masjid Al-Haram - King Abdulaziz Gate'}
-        </p>
       </motion.div>
 
       {/* Destinations */}
@@ -60,6 +76,7 @@ export function NavigationScreen() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 + index * 0.05 }}
+              onClick={() => handleNavigate(dest)}
               className="w-full flex items-center gap-3 p-3 rounded-xl bg-card hover:bg-muted transition-colors"
             >
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">

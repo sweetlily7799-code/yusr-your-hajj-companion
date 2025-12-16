@@ -1,24 +1,156 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
-import { ChevronLeft, Phone, PhoneCall, Clock, User } from 'lucide-react';
+import { ChevronLeft, Phone, PhoneCall, Clock, User, PhoneOff, Mic, MicOff, Volume2 } from 'lucide-react';
 
 const sheikhs = [
   { id: '1', nameAr: 'الشيخ أحمد العلي', nameEn: 'Sheikh Ahmad Al-Ali', langAr: 'العربية', langEn: 'Arabic', available: true },
   { id: '2', nameAr: 'الشيخ محمد الفقيه', nameEn: 'Sheikh Muhammad Al-Faqih', langAr: 'العربية، الإنجليزية', langEn: 'Arabic, English', available: true },
   { id: '3', nameAr: 'الشيخ عبدالله الحنفي', nameEn: 'Sheikh Abdullah Al-Hanafi', langAr: 'الأردية', langEn: 'Urdu', available: false },
   { id: '4', nameAr: 'الشيخ يوسف الشافعي', nameEn: 'Sheikh Yusuf Al-Shafii', langAr: 'الإندونيسية', langEn: 'Indonesian', available: true },
+  { id: '5', nameAr: 'الشيخ علي البنغالي', nameEn: 'Sheikh Ali Al-Bengali', langAr: 'البنغالية', langEn: 'Bengali', available: true },
+  { id: '6', nameAr: 'الشيخ خان الفارسي', nameEn: 'Sheikh Khan Al-Farsi', langAr: 'الفارسية', langEn: 'Persian', available: true },
 ];
+
+type CallState = 'idle' | 'connecting' | 'connected';
 
 export function SheikhsScreen() {
   const { t, setCurrentScreen, language } = useApp();
-  const [calling, setCalling] = useState<string | null>(null);
+  const [callState, setCallState] = useState<CallState>('idle');
+  const [callingSheikh, setCallingSheikh] = useState<typeof sheikhs[0] | null>(null);
+  const [callDuration, setCallDuration] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
   const isArabic = language === 'ar';
 
-  const handleCall = (sheikhId: string) => {
-    setCalling(sheikhId);
-    setTimeout(() => setCalling(null), 3000);
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (callState === 'connected') {
+      timer = setInterval(() => setCallDuration(d => d + 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [callState]);
+
+  const handleCall = (sheikh: typeof sheikhs[0]) => {
+    setCallingSheikh(sheikh);
+    setCallState('connecting');
+    setTimeout(() => setCallState('connected'), 2000);
   };
+
+  const handleEndCall = () => {
+    setCallState('idle');
+    setCallingSheikh(null);
+    setCallDuration(0);
+    setIsMuted(false);
+  };
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Active Call Screen
+  if (callState !== 'idle' && callingSheikh) {
+    return (
+      <div className="h-full flex flex-col bg-gradient-to-b from-primary/20 to-background">
+        {/* Call Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex-1 flex flex-col items-center justify-center p-6"
+        >
+          {/* Sheikh Avatar */}
+          <motion.div
+            animate={callState === 'connecting' ? { scale: [1, 1.1, 1] } : {}}
+            transition={{ duration: 1.5, repeat: callState === 'connecting' ? Infinity : 0 }}
+            className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center mb-4 relative"
+          >
+            <User className="w-12 h-12 text-primary" />
+            {callState === 'connected' && (
+              <motion.div
+                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 rounded-full border-2 border-success"
+              />
+            )}
+          </motion.div>
+
+          {/* Sheikh Name */}
+          <h2 className="text-lg font-semibold text-foreground mb-1">
+            {isArabic ? callingSheikh.nameAr : callingSheikh.nameEn}
+          </h2>
+          
+          {/* Call Status */}
+          <p className={`text-sm ${callState === 'connected' ? 'text-success' : 'text-muted-foreground'}`}>
+            {callState === 'connecting' 
+              ? t('connecting')
+              : t('callConnected')
+            }
+          </p>
+
+          {/* Call Duration */}
+          {callState === 'connected' && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-2xl font-mono text-foreground mt-4"
+            >
+              {formatDuration(callDuration)}
+            </motion.p>
+          )}
+
+          {/* Audio Visualizer */}
+          {callState === 'connected' && (
+            <motion.div className="flex items-center gap-1 mt-4">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  animate={{ height: [8, 20 + Math.random() * 15, 8] }}
+                  transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }}
+                  className="w-1.5 bg-primary rounded-full"
+                  style={{ height: 8 }}
+                />
+              ))}
+            </motion.div>
+          )}
+        </motion.div>
+
+        {/* Call Controls */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="p-6 pb-8"
+        >
+          <div className="flex items-center justify-center gap-6">
+            {/* Mute Button */}
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${
+                isMuted ? 'bg-destructive/20 text-destructive' : 'bg-muted text-foreground'
+              }`}
+            >
+              {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+            </button>
+
+            {/* End Call Button */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handleEndCall}
+              className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center"
+            >
+              <PhoneOff className="w-7 h-7 text-destructive-foreground" />
+            </motion.button>
+
+            {/* Speaker Button */}
+            <button className="w-14 h-14 rounded-full bg-muted flex items-center justify-center text-foreground">
+              <Volume2 className="w-6 h-6" />
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -49,8 +181,8 @@ export function SheikhsScreen() {
           <Clock className="w-4 h-4 text-primary" />
           <p className="text-xs text-foreground">
             {isArabic 
-              ? 'الخدمة متاحة من 8 صباحاً حتى 10 مساءً (خارج أوقات الذروة)'
-              : 'Service available 8 AM - 10 PM (off-peak hours)'}
+              ? 'الخدمة متاحة من 8 صباحاً حتى 10 مساءً'
+              : 'Available 8 AM - 10 PM (off-peak)'}
           </p>
         </div>
       </motion.div>
@@ -85,49 +217,21 @@ export function SheikhsScreen() {
                   </div>
                 </div>
                 <button
-                  onClick={() => handleCall(sheikh.id)}
-                  disabled={!sheikh.available || calling !== null}
+                  onClick={() => handleCall(sheikh)}
+                  disabled={!sheikh.available}
                   className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
                     sheikh.available 
                       ? 'bg-success text-success-foreground' 
                       : 'bg-muted text-muted-foreground'
                   } disabled:opacity-50`}
                 >
-                  {calling === sheikh.id ? (
-                    <PhoneCall className="w-5 h-5 animate-pulse" />
-                  ) : (
-                    <Phone className="w-5 h-5" />
-                  )}
+                  <Phone className="w-5 h-5" />
                 </button>
               </div>
             </motion.div>
           ))}
         </div>
       </div>
-
-      {/* Calling Modal */}
-      {calling && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 rounded-[50px]"
-        >
-          <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center mb-4"
-          >
-            <PhoneCall className="w-10 h-10 text-success" />
-          </motion.div>
-          <p className="text-lg font-semibold text-foreground">
-            {isArabic ? 'جاري الاتصال...' : 'Connecting...'}
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {isArabic ? sheikhs.find(s => s.id === calling)?.nameAr : sheikhs.find(s => s.id === calling)?.nameEn}
-          </p>
-        </motion.div>
-      )}
     </div>
   );
 }
