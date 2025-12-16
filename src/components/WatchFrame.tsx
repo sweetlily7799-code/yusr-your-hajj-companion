@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 interface WatchFrameProps {
@@ -6,6 +6,21 @@ interface WatchFrameProps {
 }
 
 export function WatchFrame({ children }: WatchFrameProps) {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted via-background to-muted/50 p-4">
       {/* Watch Container */}
@@ -55,8 +70,15 @@ export function WatchFrame({ children }: WatchFrameProps) {
                 background: 'hsl(var(--watch-screen-bg))',
               }}
             >
+              {/* Clock Header */}
+              <div className="absolute top-0 left-0 right-0 z-50 flex justify-center pt-2">
+                <div className="px-3 py-0.5 rounded-full bg-background/80 backdrop-blur-sm">
+                  <span className="text-xs font-medium text-foreground">{formatTime(time)}</span>
+                </div>
+              </div>
+              
               {/* Screen Content */}
-              <div className="w-full h-full overflow-hidden">
+              <div className="w-full h-full overflow-hidden pt-6">
                 {children}
               </div>
               
