@@ -2,87 +2,130 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import '@fontsource/noto-sans-arabic/400.css';
+@import '@fontsource/noto-sans-arabic/500.css';
+@import '@fontsource/noto-sans-arabic/700.css';
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Yusr Light Theme - White with Golden Accents */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 8%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Golden Yellow - Primary Brand Color */
+    --primary: 35 45% 55%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Soft Cream */
+    --secondary: 40 30% 95%;
+    --secondary-foreground: 0 0% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 40 20% 92%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Warm Gold */
+    --accent: 38 50% 60%;
+    --accent-foreground: 0 0% 8%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Success - Green for completed tasks */
+    --success: 142 72% 40%;
+    --success-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    /* Warning - Amber for alerts */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 8%;
+
+    --border: 40 20% 88%;
+    --input: 40 20% 88%;
+    --ring: 35 45% 55%;
+
+    --radius: 1rem;
+
+    /* Watch-specific variables */
+    --watch-bezel: 0 0% 15%;
+    --watch-screen-bg: 0 0% 98%;
+    --watch-glow: 35 60% 60%;
+
+    /* Gradients */
+    --gradient-gold: linear-gradient(135deg, hsl(35, 45%, 55%) 0%, hsl(40, 50%, 65%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(40, 30%, 97%) 100%);
+
+    /* Shadows */
+    --shadow-watch: 0 20px 60px -10px rgba(0, 0, 0, 0.3), 0 10px 20px -5px rgba(0, 0, 0, 0.2);
+    --shadow-card: 0 2px 8px -2px rgba(0, 0, 0, 0.08);
+    --shadow-button: 0 4px 12px -2px hsla(35, 45%, 55%, 0.4);
+
+    /* Animations */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Yusr Dark Theme - Deep charcoal with Golden Accents */
+    --background: 220 15% 10%;
+    --foreground: 40 20% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 15% 13%;
+    --card-foreground: 40 20% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 15% 13%;
+    --popover-foreground: 40 20% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Golden Yellow - Brighter for dark mode */
+    --primary: 38 55% 58%;
+    --primary-foreground: 220 15% 8%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 12% 18%;
+    --secondary-foreground: 40 20% 90%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 12% 20%;
+    --muted-foreground: 40 10% 60%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 38 50% 55%;
+    --accent-foreground: 220 15% 8%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --success: 142 72% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 8%;
+
+    --border: 220 12% 22%;
+    --input: 220 12% 22%;
+    --ring: 38 55% 58%;
+
+    --watch-bezel: 0 0% 8%;
+    --watch-screen-bg: 220 15% 10%;
+    --watch-glow: 38 60% 50%;
+
+    --gradient-gold: linear-gradient(135deg, hsl(38, 55%, 58%) 0%, hsl(42, 60%, 65%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(220, 15%, 13%) 0%, hsl(220, 12%, 15%) 100%);
+
+    --shadow-watch: 0 20px 60px -10px rgba(0, 0, 0, 0.5), 0 10px 20px -5px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 2px 8px -2px rgba(0, 0, 0, 0.3);
+    --shadow-button: 0 4px 12px -2px hsla(38, 55%, 58%, 0.3);
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -100,6 +143,80 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Noto Sans Arabic', system-ui, sans-serif;
+  }
+
+  /* RTL Support */
+  [dir="rtl"] {
+    font-family: 'Noto Sans Arabic', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Watch-specific styles */
+  .watch-screen {
+    @apply overflow-hidden;
+    background: hsl(var(--watch-screen-bg));
+  }
+
+  .watch-button {
+    @apply flex items-center justify-center rounded-full transition-all duration-200;
+    @apply bg-primary text-primary-foreground;
+    @apply active:scale-95;
+    box-shadow: var(--shadow-button);
+  }
+
+  .watch-card {
+    @apply rounded-2xl p-3;
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .watch-list-item {
+    @apply flex items-center gap-3 p-3 rounded-xl transition-colors;
+    @apply active:bg-muted;
+  }
+
+  /* Golden accent text */
+  .text-gold {
+    @apply text-primary;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Accessibility - Large touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Counter circle */
+  .counter-ring {
+    stroke: hsl(var(--primary));
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease-out;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe area padding for watch */
+  .safe-area {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 }
